@@ -1,14 +1,22 @@
 # water infiltration through layers
 precp <- 5
 infilt <- precp  # mm/hour
+WTADD <- 0
 TWTADD <- 0
 roff_layer <- 0.0
 watercontent <- 0
 fieldcap <- 0.45
 wtdeficit <- fieldcap - watercontent
-thksl <- 100
-WCL <- as.logical()
-FWCLN <- as.logical()
+THKSL <- 100
+WCL <- 0
+FWCLN <- 0
+wsmin <- 1 #arbitrary
+WILTPT <- wsmin/100.0
+wsmax <- 7 #arbitrary
+FLDCAPL <- wsmax/100.0
+wcl <- FILDCP
+FILDCP <- wsmax/100.0
+wsc <- wcl*THKSL*10.0
 
 # Loop over all soil layers
 for (i in 1:10) {
@@ -18,7 +26,7 @@ for (i in 1:10) {
     WTADD <- min(infilt, wtdeficit[i] * thksl[i] * 10.0)  # from cm to mm
     
     # Change water content of this layer
-    WCL[i] <- (WCL[i] * (thksl[i] * 10.0) + WTADD) / (thksl[i] * 10.0)
+    WCL[i] <- (WCL[i] * (THKSL[i] * 10.0) + WTADD) / (THKSL[i] * 10.0)
     FWCLN[i] <- WCL[i]  # update fwcln of this layer
     
     TWTADD <- TWTADD + WTADD  # calculating total added water to soil layers (mm)
@@ -32,7 +40,7 @@ for (i in 1:10) {
   }
 }
 
-if (precp > 0.0 && WCL[1] > WCL[2]) {
+if (!is.na(precp) && !is.na(WCL[1]) && !is.na(WCL[2]) && precp > 0.0 && WCL[1] > WCL[2]) {
   supply <- (WCL[1] - WCL[2]) / 3.0
   WCL[1] <- WCL[1] - 2.0 * supply
   WCL[2] <- WCL[2] + supply
@@ -40,3 +48,8 @@ if (precp > 0.0 && WCL[1] > WCL[2]) {
 
 # Runoff
 runoff <- infilt + roff_layer  # precp - TWTADD + roff_layer
+for (i in 1:10) {
+  wsc=max(0.00,(WCL[i]-WILTPT)*THKSL*10.0)
+  omegaL=max(0.001,(wcl-WILTPT)/(FLDCAPL-WILTPT))
+}
+  
