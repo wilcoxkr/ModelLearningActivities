@@ -45,10 +45,11 @@ Wcnew_max=wsc_max/(Thick*10.0)+WILTPT
 
 ###calculate evap demand by eq.24 of Seller et al. 1996 (demand)
 #setting parameters and formula for evap
-#created a function to returns sat vapour pressure in Pa
-#based on air temperature
+#created a function to returns sat vapour pressure in Pa based on air temperature
+
 esat<-function(x){610.78*exp(17.27*x/(x+237.3))
   }
+#set aparameters
 Tair<-25
 RH<-30 #from Teco model
 {Rsoil=10.1*exp(1.0/Wcnew_min)
@@ -64,35 +65,30 @@ else {evap=1.0*esat(Tair)*(1.0-RH/100.0)/(Rsoil+Rd)*density*sp_heat/psychro/la*3
 ### Soil evaporation; SRDT(I) for contribution of each layer. 
 ##    Units here are g H2O m-2 layer-1 h-1.
 Twater=0
-do i=1,10
-wsc(i)=(wcl(i)-wiltpt)*THKSL(I)*10.0
-Twater=Twater+wsc(i)  ! total water in soils,mm
-enddo
+wsc_min=(Wcnew_min-WILTPT)*Thick*10.0
+Twater=Twater+wsc_min  # total water in soils,mm
+
 
 Tsrdt=0.0
-DO i=1,10
-!		Fraction of SEVAP supplied by each soil layer
-SRDT(I)=EXP(-4.73*(DEPTH(I)-THKSL(I)/2.0)/100.0)/1.987
-!			SRDT(I)=AMAX1(0.0,SRDT(I)*(wcl(i)-wiltpt)) !*THKSL(I))
-Tsrdt=Tsrdt+SRDT(i)/(i*i)  ! to normalize SRDT(i)
-enddo
+{Depth<-10
+Depth<-Depth+Thick
+}
+#Fraction of SEVAP supplied by each soil layer
+SRDT=exp(-4.73*(Depth-Thick/2.0)/100.0)/1.987
+#		SRDT(I)=AMAX1(0.0,SRDT(I)*(wcl(i)-wiltpt)) !*Thick)
+Tsrdt=Tsrdt+SRDT/(SRDT*SRDT) #??? #to normalize SRDT
 
-do i=1,10
-SRDT(i)=SRDT(i)/Tsrdt
-enddo
 
-do i=1,10
-EVAPL(I)=Amax1(AMIN1(evap*SRDT(i),wsc(i)),0.0)  !mm
-DWCL(I)=EVAPL(I)/(THKSL(I)*10.0) !ratio
-enddo
+SRDT=SRDT/Tsrdt
 
-!	update water content of every layer
-do i=1,10
-wcl(i)=wcl(i)-DWCL(i)
-enddo
 
-!	the actual evapration
+EVAPL<-max(min(evap*SRDT,wsc_min,0.0))  #mm
+DWCL=EVAPL/(Thick*10.0) #ratio
+
+#	update water content of every layer
+
+Wc_now<-Wcnew_min-DWCL
+
+#the actual evapration
 evap=0.0	
-do i=1,10
-evap=evap+EVAPL(I)
-enddo
+evap=evap+EVAPL
