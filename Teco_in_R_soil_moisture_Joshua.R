@@ -62,6 +62,7 @@ psychro=1628.6*P/la
 if(Wcnew_min < WILTPT) {evap=0} 
 else {evap=1.0*esat(Tair)*(1.0-RH/100.0)/(Rsoil+Rd)*density*sp_heat/psychro/la*3600.0}
 }
+
 ### Soil evaporation; SRDT(I) for contribution of each layer. 
 ##    Units here are g H2O m-2 layer-1 h-1.
 Twater=0
@@ -76,13 +77,13 @@ Depth<-Depth+Thick
 #Fraction of SEVAP supplied by each soil layer
 SRDT=exp(-4.73*(Depth-Thick/2.0)/100.0)/1.987
 #		SRDT(I)=AMAX1(0.0,SRDT(I)*(wcl(i)-wiltpt)) !*Thick)
-Tsrdt=Tsrdt+SRDT/(SRDT*SRDT) #??? #to normalize SRDT
+Tsrdt=Tsrdt+SRDT #??? #to normalize SRDT
 
 
 SRDT=SRDT/Tsrdt
 
 
-EVAPL<-max(min(evap*SRDT,wsc_min,0.0))  #mm
+EVAPL<-max(min(evap*SRDT,wsc_min,(0.0)))  #mm
 DWCL=EVAPL/(Thick*10.0) #ratio
 
 #	update water content of every layer
