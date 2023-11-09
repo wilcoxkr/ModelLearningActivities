@@ -6,7 +6,7 @@ Precip<-5
 #Precip<-runif(10,1,10)
 Infilt<-Precip
 FieldCap<-0.45
-WILTPT<-0
+WILTPT<-0.05
 Thick<-100
 Wc<-0
 Wtdeficit<-FieldCap-Wc
@@ -28,7 +28,7 @@ runoff=Infilt_new + roff_layer  #weng 10072006
 
 ##	water redistribution among soil layers
 wsc<-max(0.00,(Wcnew-WILTPT)*Thick*10.0)
-omegaL=max(0.001,(Wcnew-WILTPT+5)/(FieldCap-WILTPT))
+omegaL=max(0.001,(Wcnew-WILTPT)/(FieldCap-WILTPT))
 
 
 supply=0.0
@@ -54,14 +54,14 @@ esat<-function(x){610.78*exp(17.27*x/(x+237.3))
 #set aparameters
 Tair<-25
 RH<-30 #from Teco model
-{Rsoil=10.1*exp(1.0/Wcnew_min)
+{Rsoil=10.1*exp(1.0/wsc_new)
 Rd=20.5 #*exp(LAI/1.5)!LAI is added by Weng
 P=101325.0  #Pa, atmospheric pressure
 density=1.204 #kg/m3
 la=(2.501-0.00236*Tair)*1000000.0 #J/kg
 sp_heat=1012.0  #J/kg/K
 psychro=1628.6*P/la
-if(Wcnew_min < WILTPT) {evap=0} 
+if(wsc_new < WILTPT) {evap=0} 
 else {evap=1.0*esat(Tair)*(1.0-RH/100.0)/(Rsoil+Rd)*density*sp_heat/psychro/la*3600.0}
 }
 
