@@ -28,7 +28,7 @@ runoff=Infilt_new + roff_layer  #weng 10072006
 
 ##	water redistribution among soil layers
 wsc<-max(0.00,(Wcnew-WILTPT)*Thick*10.0)
-omegaL=max(0.001,(Wcnew-WILTPT)/(FieldCap-WILTPT))
+omegaL=max(0.001,(Wcnew-WILTPT+5)/(FieldCap-WILTPT))
 
 
 supply=0.0
@@ -37,10 +37,12 @@ demand=0.0
 if(omegaL >0.3){supply=wsc/360.0*omegaL
 demand<-(FieldCap-Wcnew*Thick*10.0/360.0*(1.0-omegaL))
 exchangeL=min(supply,demand)
-wsc_min=wsc-exchangeL
-wsc_max=wsc+exchangeL
-Wcnew_min=wsc_min/(Thick*10.0)+WILTPT
-Wcnew_max=wsc_max/(Thick*10.0)+WILTPT
+wsc_new=wsc-exchangeL
+
+
+#wsc_max=wsc+exchangeL
+#Wcnew_min=wsc_min/(Thick*10.0)+WILTPT
+#Wcnew_max=wsc_max/(Thick*10.0)+WILTPT
 }
 
 ###calculate evap demand by eq.24 of Seller et al. 1996 (demand)
